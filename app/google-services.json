@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1067871967675",
+    "project_id": "diplom-59f1f",
+    "storage_bucket": "diplom-59f1f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1067871967675:android:06472d59875d402e1e0c9e",
+        "android_client_info": {
+          "package_name": "com.example.restaurantserviceapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPzgACLKfJOcJYoKGAlXCa2UYdPbsM3Q4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
