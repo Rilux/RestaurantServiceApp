@@ -9,9 +9,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -22,6 +26,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.example.restaurantserviceapp.admin.ui.model.AdminIntent
 import com.example.restaurantserviceapp.admin.ui.model.AdminState
+import com.example.restaurantserviceapp.ui.components.OrderItemComposable
 import com.example.restaurantserviceapp.ui.theme.interFontFamily
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -33,12 +38,15 @@ fun AdminScreen(
     navigator: DestinationsNavigator,
 ) {
     val viewModel = hiltViewModel<AdminViewModel>()
-    val state = viewModel.collectAsState()
+    val state by viewModel.collectAsState()
 
     LifecycleEventEffect(Lifecycle.Event.ON_CREATE) {
         viewModel.handleIntent(AdminIntent.OnLoadData)
     }
 
+    AdminComposable(
+        state
+    )
 
 }
 
@@ -48,26 +56,35 @@ private fun AdminComposable(
     state: AdminState,
 ) {
     Scaffold { paddingValues ->
-        Column(modifier = Modifier
-            .padding(paddingValues)
-            .fillMaxSize()) {
-            Row {
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
                     text = "Statistic",
                     style = TextStyle(
                         fontFamily = interFontFamily,
-                        fontSize = 40.sp,
+                        fontSize = 24.sp,
                         fontWeight = FontWeight.Medium
                     )
                 )
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(
+                    modifier = Modifier
+                        .width(8.dp)
+                        .weight(1f)
+                )
 
                 Text(
                     text = "Exit",
                     style = TextStyle(
                         fontFamily = interFontFamily,
-                        fontSize = 24.sp,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
                 )
@@ -83,7 +100,7 @@ private fun AdminComposable(
                     text = "Today",
                     style = TextStyle(
                         fontFamily = interFontFamily,
-                        fontSize = 24.sp,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
                 )
@@ -92,7 +109,7 @@ private fun AdminComposable(
                     text = "Yesterday",
                     style = TextStyle(
                         fontFamily = interFontFamily,
-                        fontSize = 24.sp,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
                 )
@@ -101,7 +118,7 @@ private fun AdminComposable(
                     text = "Choose period",
                     style = TextStyle(
                         fontFamily = interFontFamily,
-                        fontSize = 24.sp,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
                 )
@@ -113,18 +130,26 @@ private fun AdminComposable(
                 text = "List",
                 style = TextStyle(
                     fontFamily = interFontFamily,
-                    fontSize = 40.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
                 )
             )
 
             Spacer(modifier = Modifier.height(30.dp))
 
+            LazyColumn {
+                items(items = state.ordersForList) {
+                    Column {
+                        OrderItemComposable(
+                            it
+                        )
 
+                        Spacer(modifier = Modifier.height(24.dp))
+                    }
+                }
+            }
         }
     }
-
-
 }
 
 

@@ -16,6 +16,8 @@ data class AdminState(
     fun setNewLoading(newLoading: Boolean) = this.copy(isLoading = newLoading)
 
 
+    fun setNewOrdersForList(newList: List<Order>) = this.copy(ordersForList = newList)
+
     companion object {
         fun initial(): AdminState = AdminState(
             isLoading = true,

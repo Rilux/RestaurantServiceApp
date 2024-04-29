@@ -8,6 +8,7 @@ import kotlinx.parcelize.WriteWith
 
 @Parcelize
 data class Order(
+    val id: String = "",
     val isActive: Boolean = false,
     val isPaid: Boolean = false,
     val items: List<String> = emptyList(), // Assuming `items` is a list of item IDs or names.

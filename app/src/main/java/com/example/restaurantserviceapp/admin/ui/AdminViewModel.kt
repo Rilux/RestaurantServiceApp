@@ -68,6 +68,7 @@ class AdminViewModel @Inject constructor(
                     try {
                         val time = (data["time"] as Timestamp).toDate().toInstant().toEpochMilli()
                         Order(
+                            id = document.id,
                             isActive = data["isActive"] as Boolean,
                             isPaid = data["isPaid"] as Boolean,
                             items = data["items"] as List<String>,
@@ -81,6 +82,9 @@ class AdminViewModel @Inject constructor(
                         null
                     }
                 }
+
+                updateState { it.setNewOrdersForList(orders) }
+
                 orders.forEach { order ->
                     Timber.d("$order")
                 }
