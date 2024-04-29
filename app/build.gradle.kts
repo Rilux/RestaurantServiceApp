@@ -101,4 +101,6 @@ dependencies {
     implementation("org.orbit-mvi:orbit-compose:7.1.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0-RC.2")
+
+    implementation("com.patrykandpatrick.vico:compose-m3:2.0.0-alpha.18")
 }
