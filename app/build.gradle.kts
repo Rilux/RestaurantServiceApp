@@ -55,6 +55,7 @@ android {
 }
 
 dependencies {
+    implementation("com.google.firebase:firebase-firestore:24.11.1")
     val lifecycle_version = "2.7.0"
     val arch_version = "2.2.0"
 
@@ -99,5 +100,5 @@ dependencies {
     implementation("org.orbit-mvi:orbit-viewmodel:7.1.0")
     implementation("org.orbit-mvi:orbit-compose:7.1.0")
 
-
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0-RC.2")
 }

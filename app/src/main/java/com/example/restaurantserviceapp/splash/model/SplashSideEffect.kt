@@ -6,6 +6,6 @@ sealed class SplashSideEffect {
 
     data object ShowAdminContent: SplashSideEffect()
 
-    data object ShowServerContent: SplashSideEffect()
+    data object ShowWaiterContent: SplashSideEffect()
 
 }

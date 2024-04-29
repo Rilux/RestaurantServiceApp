@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
+import com.example.restaurantserviceapp.destinations.AdminScreenDestination
 import com.example.restaurantserviceapp.destinations.LoginScreenDestination
 import com.example.restaurantserviceapp.splash.model.SplashIntent
 import com.example.restaurantserviceapp.splash.model.SplashSideEffect
@@ -31,8 +32,8 @@ fun SplashScreen(
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
             is SplashSideEffect.ShowLogin -> navigator.navigate(LoginScreenDestination)
-            is SplashSideEffect.ShowAdminContent -> {}
-            is SplashSideEffect.ShowServerContent -> {}
+            is SplashSideEffect.ShowAdminContent -> navigator.navigate(AdminScreenDestination)
+            is SplashSideEffect.ShowWaiterContent -> {}
         }
     }
 
