@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -47,6 +48,10 @@ import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottomAxis
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStartAxis
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
+import com.patrykandpatrick.vico.compose.common.ProvideVicoTheme
+import com.patrykandpatrick.vico.compose.common.VicoTheme
+import com.patrykandpatrick.vico.compose.common.vicoTheme
+import com.patrykandpatrick.vico.compose.m3.common.rememberM3VicoTheme
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianValueFormatter
 import com.patrykandpatrick.vico.core.cartesian.data.lineSeries
@@ -306,15 +311,18 @@ private fun ComposeChart1(
     modelProducer: CartesianChartModelProducer,
     modifier: Modifier = Modifier,
 ) {
-    CartesianChartHost(
-        rememberCartesianChart(
-            rememberLineCartesianLayer(),
-            startAxis = rememberStartAxis(),
-            bottomAxis = rememberBottomAxis(),
-        ),
-        modelProducer,
-        modifier = modifier
-    )
+    ProvideVicoTheme(rememberM3VicoTheme(lineCartesianLayerColors = listOf(Color(0xffb8dec3)))) {
+        CartesianChartHost(
+            rememberCartesianChart(
+                rememberLineCartesianLayer(),
+                startAxis = rememberStartAxis(),
+                bottomAxis = rememberBottomAxis(),
+            ),
+            modelProducer,
+            modifier = modifier
+        )
+    }
+
 }
 
 

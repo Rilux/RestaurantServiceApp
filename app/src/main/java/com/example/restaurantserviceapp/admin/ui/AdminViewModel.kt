@@ -65,8 +65,6 @@ class AdminViewModel @Inject constructor(
     }
 
 
-
-
     private fun loadData() = intent{
         updateState { it.setNewLoading(true) }
 
