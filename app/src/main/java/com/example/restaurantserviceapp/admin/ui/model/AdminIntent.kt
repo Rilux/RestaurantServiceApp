@@ -4,5 +4,8 @@ sealed class AdminIntent {
 
     data object OnLoadData : AdminIntent()
 
+    data object OnTodayChosen : AdminIntent()
+
+    data object OnYesterdayChosen : AdminIntent()
 
 }

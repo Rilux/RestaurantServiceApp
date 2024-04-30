@@ -1,6 +1,5 @@
 package com.example.restaurantserviceapp.admin.ui
 
-import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.SavedStateHandle
 import com.example.restaurantserviceapp.admin.ui.model.AdminIntent
 import com.example.restaurantserviceapp.admin.ui.model.AdminState
@@ -8,7 +7,6 @@ import com.example.restaurantserviceapp.admin.ui.model.Order
 import com.example.restaurantserviceapp.ui.base.BaseMviViewModel
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.toObject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
@@ -17,11 +15,10 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.atTime
 import kotlinx.datetime.minus
-import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
-import kotlinx.datetime.toJavaInstant
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
+import org.orbitmvi.orbit.syntax.simple.intent
 import org.orbitmvi.orbit.viewmodel.container
 import timber.log.Timber
 import java.time.ZoneId
@@ -43,17 +40,33 @@ class AdminViewModel @Inject constructor(
     override fun handleIntent(intent: AdminIntent) {
         when (intent) {
             AdminIntent.OnLoadData -> loadData()
+            AdminIntent.OnTodayChosen -> {
+                updateState {
+                    it.setNewDate(Clock.System.now())
+                }
+                loadData()
+            }
+            AdminIntent.OnYesterdayChosen -> {
+                updateState {
+                    it.setNewDate(Clock.System.now().minus(1, DateTimeUnit.DAY, TimeZone.currentSystemDefault()))
+                }
+
+                loadData()
+            }
         }
     }
 
 
-    private fun loadData() {
-        val now = Clock.System.now()
+
+
+    private fun loadData() = intent{
+        updateState { it.setNewLoading(true) }
+
         val tz = TimeZone.currentSystemDefault()
 
         // Get the start of today (midnight at the beginning of today)
         val startOfDayLocalDateTime =
-            now.toLocalDateTime(tz).date.atStartOfDayIn(tz).toLocalDateTime(tz)
+            state.currentDate.toLocalDateTime(tz).date.atStartOfDayIn(tz).toLocalDateTime(tz)
                 .toJavaLocalDateTime()
         val startOfDayTimestamp = Timestamp(
             startOfDayLocalDateTime.atZone(ZoneId.systemDefault()).toInstant().epochSecond, 0
@@ -99,6 +112,17 @@ class AdminViewModel @Inject constructor(
                     it.setNewDataForChart(groupOrdersByHour(orders))
                 }
 
+                updateState { it.setNewNumberOfOrders(orders.size.toLong()) }
+
+                updateState {
+                    it.setNewTipsAndIncome(
+                        newIncome = orders.sumOf { it.value },
+                        newTips = orders.sumOf { it.tips }
+                    )
+                }
+
+                updateState { it.setNewLoading(false) }
+
             }
             .addOnFailureListener { exception ->
                 Timber.w("Error getting documents: ", exception)
@@ -116,7 +140,8 @@ fun groupOrdersByHour(orders: List<Order>): Map<Instant, Int> {
 
     // Ensure all hours are represented
     val fullDayMap = (0 until 24).associate { hour ->
-        val startOfHour = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date.atTime(hour, 0)
+        val startOfHour =
+            Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date.atTime(hour, 0)
         val startOfHourInstant = startOfHour.toInstant(TimeZone.currentSystemDefault())
         startOfHourInstant to (grouped[startOfHourInstant] ?: 0)
     }

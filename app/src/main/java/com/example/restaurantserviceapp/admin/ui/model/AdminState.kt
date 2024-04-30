@@ -2,6 +2,7 @@ package com.example.restaurantserviceapp.admin.ui.model
 
 import android.os.Parcelable
 import com.example.restaurantserviceapp.ui.base.InstantParceler
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.WriteWith
@@ -9,6 +10,7 @@ import kotlinx.parcelize.WriteWith
 @Parcelize
 data class AdminState(
     val isLoading: Boolean,
+    val currentDate: @WriteWith<InstantParceler> Instant,
     val ordersNumberForChart: Map<@WriteWith<InstantParceler> Instant, Int>,
     val income: Long,
     val numOfOrders: Long,
@@ -20,11 +22,22 @@ data class AdminState(
 
 
     fun setNewOrdersForList(newList: List<Order>) = this.copy(ordersForList = newList)
+
+    fun setNewDate(newDate: Instant) = this.copy(currentDate = newDate)
+
     fun setNewDataForChart(data: Map<Instant, Int>) = this.copy(ordersNumberForChart = data)
+
+    fun setNewTipsAndIncome(
+        newTips: Long,
+        newIncome: Long
+    ) = this.copy(income = newIncome, tips = newTips)
+
+    fun setNewNumberOfOrders(newNumber: Long) = this.copy(numOfOrders = newNumber)
 
     companion object {
         fun initial(): AdminState = AdminState(
             isLoading = true,
+            currentDate = Clock.System.now(),
             ordersNumberForChart = emptyMap(),
             income = 0,
             numOfOrders = 0,
