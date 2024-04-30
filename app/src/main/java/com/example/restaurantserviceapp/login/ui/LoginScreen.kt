@@ -31,22 +31,26 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.restaurantserviceapp.destinations.AdminScreenDestination
 import com.example.restaurantserviceapp.login.ui.model.LoginIntent
 import com.example.restaurantserviceapp.login.ui.model.LoginSideEffect
 import com.example.restaurantserviceapp.ui.theme.interFontFamily
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 @Destination
 @RootNavGraph
-fun LoginScreen() {
+fun LoginScreen(
+    navigator: DestinationsNavigator
+) {
     val loginViewModel = hiltViewModel<LoginViewModel>()
 
     loginViewModel.collectSideEffect { sideEffect ->
         when(sideEffect) {
-            LoginSideEffect.NavigateToAdminPage -> {}
+            LoginSideEffect.NavigateToAdminPage -> navigator.navigate(AdminScreenDestination)
             LoginSideEffect.ShowErrorMessage -> {}
             LoginSideEffect.NavigateToWaitingPage -> {}
             LoginSideEffect.NavigateToWaiterPage -> {}

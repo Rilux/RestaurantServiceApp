@@ -14,7 +14,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -28,9 +30,26 @@ import com.example.restaurantserviceapp.admin.ui.model.AdminIntent
 import com.example.restaurantserviceapp.admin.ui.model.AdminState
 import com.example.restaurantserviceapp.ui.components.OrderItemComposable
 import com.example.restaurantserviceapp.ui.theme.interFontFamily
+import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
+import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottomAxis
+import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStartAxis
+import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
+import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
+import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
+import com.patrykandpatrick.vico.core.cartesian.data.CartesianValueFormatter
+import com.patrykandpatrick.vico.core.cartesian.data.lineSeries
+import com.patrykandpatrick.vico.core.common.data.ExtraStore
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
+import kotlinx.datetime.toJavaInstant
+import kotlinx.datetime.toLocalDateTime
 import org.orbitmvi.orbit.compose.collectAsState
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
 @Destination
@@ -126,6 +145,42 @@ private fun AdminComposable(
 
             Spacer(modifier = Modifier.height(50.dp))
 
+            val modelProducer = remember { CartesianChartModelProducer.build() }
+            if(state.ordersNumberForChart.isNotEmpty()) {
+                val xToDateMapKey = ExtraStore.Key<Map<Float, Instant>>()
+
+                val xToDates = state.ordersNumberForChart.keys.associateBy { it.toLocalDateTime(
+                    TimeZone.currentSystemDefault()).hour.toFloat() }
+
+                modelProducer.tryRunTransaction {
+                    lineSeries { series(xToDates.keys, state.ordersNumberForChart.values) }
+                    updateExtras { it[xToDateMapKey] = xToDates }
+                }
+
+                CartesianValueFormatter { x, chartValues, _ ->
+                    // Ensure x is treated as epoch milliseconds and properly converted to an Instant
+                    val instant = chartValues.model.extraStore[xToDateMapKey][x]
+                        ?: Instant.fromEpochMilliseconds(x.toLong()) // Fallback to converting x directly if not found in the map
+
+                    // Use DateTimeFormatter to format the Instant into a readable hour format
+                    DateTimeFormatter
+                        .ofPattern("HH:mm", Locale.getDefault()) // Now includes minutes for clarity, adjust if only hours are needed
+                        .format(instant.toJavaInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
+                }
+            }
+
+
+//            LaunchedEffect(Unit) { modelProducer.tryRunTransaction { lineSeries { series(4, 12, 8, 16) } } }
+            val dateTimeFormatter = DateTimeFormatter.ofPattern("d MMM", Locale.ROOT)
+
+
+
+            ComposeChart1(
+                modelProducer
+            )
+
+            Spacer(modifier = Modifier.height(50.dp))
+
             Text(
                 text = "List",
                 style = TextStyle(
@@ -143,7 +198,6 @@ private fun AdminComposable(
                         OrderItemComposable(
                             it
                         )
-
                         Spacer(modifier = Modifier.height(24.dp))
                     }
                 }
@@ -154,4 +208,18 @@ private fun AdminComposable(
 
 
 
-
+@Composable
+private fun ComposeChart1(
+    modelProducer: CartesianChartModelProducer,
+    modifier: Modifier = Modifier,
+) {
+    CartesianChartHost(
+        rememberCartesianChart(
+            rememberLineCartesianLayer(),
+            startAxis = rememberStartAxis(),
+            bottomAxis = rememberBottomAxis(),
+        ),
+        modelProducer,
+        modifier = modifier
+    )
+}

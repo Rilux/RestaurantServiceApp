@@ -1,5 +1,6 @@
 package com.example.restaurantserviceapp.admin.ui
 
+import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.SavedStateHandle
 import com.example.restaurantserviceapp.admin.ui.model.AdminIntent
 import com.example.restaurantserviceapp.admin.ui.model.AdminState
@@ -14,8 +15,10 @@ import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.atTime
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
+import kotlinx.datetime.toInstant
 import kotlinx.datetime.toJavaInstant
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
@@ -49,12 +52,19 @@ class AdminViewModel @Inject constructor(
         val tz = TimeZone.currentSystemDefault()
 
         // Get the start of today (midnight at the beginning of today)
-        val startOfDayLocalDateTime = now.toLocalDateTime(tz).date.atStartOfDayIn(tz).toLocalDateTime(tz).toJavaLocalDateTime()
-        val startOfDayTimestamp = Timestamp(startOfDayLocalDateTime.atZone(ZoneId.systemDefault()).toInstant().epochSecond, 0)
+        val startOfDayLocalDateTime =
+            now.toLocalDateTime(tz).date.atStartOfDayIn(tz).toLocalDateTime(tz)
+                .toJavaLocalDateTime()
+        val startOfDayTimestamp = Timestamp(
+            startOfDayLocalDateTime.atZone(ZoneId.systemDefault()).toInstant().epochSecond, 0
+        )
 
         // Get the end of today (one second before midnight at the end of today)
         val endOfDayLocalDateTime = startOfDayLocalDateTime.plusDays(1).minusNanos(1)
-        val endOfDayTimestamp = Timestamp(endOfDayLocalDateTime.atZone(ZoneId.systemDefault()).toInstant().epochSecond, endOfDayLocalDateTime.nano)
+        val endOfDayTimestamp = Timestamp(
+            endOfDayLocalDateTime.atZone(ZoneId.systemDefault()).toInstant().epochSecond,
+            endOfDayLocalDateTime.nano
+        )
 
         // Reference to Firestore database
 
@@ -85,15 +95,31 @@ class AdminViewModel @Inject constructor(
 
                 updateState { it.setNewOrdersForList(orders) }
 
-                orders.forEach { order ->
-                    Timber.d("$order")
+                updateState {
+                    it.setNewDataForChart(groupOrdersByHour(orders))
                 }
+
             }
             .addOnFailureListener { exception ->
                 Timber.w("Error getting documents: ", exception)
             }
     }
+}
 
+fun groupOrdersByHour(orders: List<Order>): Map<Instant, Int> {
+    // First, group the orders by hour as before
+    val grouped = orders.groupBy { order ->
+        val localDateTime = order.time.toLocalDateTime(TimeZone.currentSystemDefault())
+        val startOfHour = localDateTime.date.atTime(localDateTime.hour, 0)
+        startOfHour.toInstant(TimeZone.currentSystemDefault())
+    }.mapValues { (_, orders) -> orders.size }
 
+    // Ensure all hours are represented
+    val fullDayMap = (0 until 24).associate { hour ->
+        val startOfHour = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date.atTime(hour, 0)
+        val startOfHourInstant = startOfHour.toInstant(TimeZone.currentSystemDefault())
+        startOfHourInstant to (grouped[startOfHourInstant] ?: 0)
+    }
 
+    return fullDayMap
 }
