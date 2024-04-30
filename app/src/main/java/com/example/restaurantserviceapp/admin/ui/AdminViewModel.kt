@@ -2,6 +2,7 @@ package com.example.restaurantserviceapp.admin.ui
 
 import androidx.lifecycle.SavedStateHandle
 import com.example.restaurantserviceapp.admin.ui.model.AdminIntent
+import com.example.restaurantserviceapp.admin.ui.model.AdminSideEffect
 import com.example.restaurantserviceapp.admin.ui.model.AdminState
 import com.example.restaurantserviceapp.admin.ui.model.Order
 import com.example.restaurantserviceapp.ui.base.BaseMviViewModel
@@ -28,10 +29,10 @@ import javax.inject.Inject
 class AdminViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val firestore: FirebaseFirestore,
-) : BaseMviViewModel<AdminState, Nothing, AdminIntent>() {
+) : BaseMviViewModel<AdminState, AdminSideEffect, AdminIntent>() {
 
     override val container =
-        container<AdminState, Nothing>(
+        container<AdminState, AdminSideEffect>(
             initialState = AdminState.initial(),
             savedStateHandle = savedStateHandle
         )
@@ -49,6 +50,13 @@ class AdminViewModel @Inject constructor(
             AdminIntent.OnYesterdayChosen -> {
                 updateState {
                     it.setNewDate(Clock.System.now().minus(1, DateTimeUnit.DAY, TimeZone.currentSystemDefault()))
+                }
+
+                loadData()
+            }
+            is AdminIntent.OnDateChoosen -> {
+                updateState {
+                    it.setNewDate(intent.date)
                 }
 
                 loadData()
