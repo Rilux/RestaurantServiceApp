@@ -13,6 +13,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.example.restaurantserviceapp.destinations.AdminScreenDestination
+import com.example.restaurantserviceapp.destinations.WaiterScreenDestination
 import com.example.restaurantserviceapp.waiting.model.WaitingIntent
 import com.example.restaurantserviceapp.waiting.model.WaitingSideEffect
 import com.ramcosta.composedestinations.annotation.Destination
@@ -33,7 +34,7 @@ fun WaitingScreen(
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
             WaitingSideEffect.OnNavigateToAdmin -> navigator.navigate(AdminScreenDestination)
-            WaitingSideEffect.OnNavigateToWaiterPage -> {}
+            WaitingSideEffect.OnNavigateToWaiterPage -> navigator.navigate(WaiterScreenDestination)
         }
     }
 

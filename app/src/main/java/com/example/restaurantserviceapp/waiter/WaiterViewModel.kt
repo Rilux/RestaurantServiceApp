@@ -1,12 +1,14 @@
-package com.example.restaurantserviceapp.admin.ui
+package com.example.restaurantserviceapp.waiter
 
 import androidx.lifecycle.SavedStateHandle
-import com.example.restaurantserviceapp.admin.ui.model.AdminIntent
-import com.example.restaurantserviceapp.admin.ui.model.AdminSideEffect
-import com.example.restaurantserviceapp.admin.ui.model.AdminState
+import com.example.restaurantserviceapp.admin.ui.groupOrdersByHour
 import com.example.restaurantserviceapp.admin.ui.model.Order
 import com.example.restaurantserviceapp.ui.base.BaseMviViewModel
+import com.example.restaurantserviceapp.waiter.model.WaiterIntent
+import com.example.restaurantserviceapp.waiter.model.WaiterSideEffect
+import com.example.restaurantserviceapp.waiter.model.WaiterState
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.datetime.Clock
@@ -14,9 +16,7 @@ import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
-import kotlinx.datetime.atTime
 import kotlinx.datetime.minus
-import kotlinx.datetime.toInstant
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import org.orbitmvi.orbit.syntax.simple.intent
@@ -26,35 +26,42 @@ import java.time.ZoneId
 import javax.inject.Inject
 
 @HiltViewModel
-class AdminViewModel @Inject constructor(
+class WaiterViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val firestore: FirebaseFirestore,
-) : BaseMviViewModel<AdminState, AdminSideEffect, AdminIntent>() {
+    private val firebaseAuth: FirebaseAuth,
+) : BaseMviViewModel<WaiterState, WaiterSideEffect, WaiterIntent>() {
+
+    private var userTables: MutableList<Long> = mutableListOf()
 
     override val container =
-        container<AdminState, AdminSideEffect>(
-            initialState = AdminState.initial(),
+        container<WaiterState, WaiterSideEffect>(
+            initialState = WaiterState.initial(),
             savedStateHandle = savedStateHandle
         )
 
-
-    override fun handleIntent(intent: AdminIntent) {
+    override fun handleIntent(intent: WaiterIntent) {
         when (intent) {
-            AdminIntent.OnLoadData -> loadData()
-            AdminIntent.OnTodayChosen -> {
+            WaiterIntent.OnLoadData -> getUser()
+            WaiterIntent.OnTodayChosen -> {
                 updateState {
                     it.setNewDate(Clock.System.now())
                 }
                 loadData()
             }
-            AdminIntent.OnYesterdayChosen -> {
+
+            WaiterIntent.OnYesterdayChosen -> {
                 updateState {
-                    it.setNewDate(Clock.System.now().minus(1, DateTimeUnit.DAY, TimeZone.currentSystemDefault()))
+                    it.setNewDate(
+                        Clock.System.now()
+                            .minus(1, DateTimeUnit.DAY, TimeZone.currentSystemDefault())
+                    )
                 }
 
                 loadData()
             }
-            is AdminIntent.OnDateChosen -> {
+
+            is WaiterIntent.OnDateChosen -> {
                 updateState {
                     it.setNewDate(intent.date)
                 }
@@ -64,8 +71,32 @@ class AdminViewModel @Inject constructor(
         }
     }
 
+    private fun getUser() {
+        val currentUser = firebaseAuth.currentUser
 
-    private fun loadData() = intent{
+        if (currentUser != null) {
+            firestore.collection("users")
+                .whereEqualTo("email", currentUser.email)
+                .addSnapshotListener { value, e ->
+                    if (e != null) {
+                        Timber.w("Listen failed.", e)
+                        return@addSnapshotListener
+                    }
+
+                    for (doc in value!!) {
+                        val numbersList = doc.get("tables") as? List<Number>
+                        numbersList?.let { numbers ->
+                            userTables.clear()
+
+                            userTables.addAll(numbers.map { it.toLong() })  // Convert each Number to Long
+                        }
+                        loadData()
+                    }
+                }
+        }
+    }
+
+    private fun loadData() = intent {
 
         val tz = TimeZone.currentSystemDefault()
 
@@ -85,6 +116,7 @@ class AdminViewModel @Inject constructor(
         )
 
         // Reference to Firestore database
+
 
         firestore.collection("orders")
             .whereGreaterThanOrEqualTo("time", startOfDayTimestamp)
@@ -109,9 +141,7 @@ class AdminViewModel @Inject constructor(
                         Timber.e(e, "Error deserializing document: ${document.id}")
                         null
                     }
-                }
-
-                updateState { it.setNewOrdersForList(orders) }
+                }.filter { userTables.contains(it.table) }
 
                 updateState {
                     it.setNewDataForChart(groupOrdersByHour(orders))
@@ -126,6 +156,10 @@ class AdminViewModel @Inject constructor(
                     )
                 }
 
+                updateState {
+                    it.setNewOrdersForList(orders.filter { it.isActive })
+                }
+                getOrdersProductName(orders)
                 updateState { it.setNewLoading(false) }
 
             }
@@ -133,23 +167,36 @@ class AdminViewModel @Inject constructor(
                 Timber.w("Error getting documents: ", exception)
             }
     }
-}
 
-fun groupOrdersByHour(orders: List<Order>): Map<Instant, Int> {
-    // First, group the orders by hour as before
-    val grouped = orders.groupBy { order ->
-        val localDateTime = order.time.toLocalDateTime(TimeZone.currentSystemDefault())
-        val startOfHour = localDateTime.date.atTime(localDateTime.hour, 0)
-        startOfHour.toInstant(TimeZone.currentSystemDefault())
-    }.mapValues { (_, orders) -> orders.size }
+    private fun getOrdersProductName(orders: List<Order>) {
+        val newOrders = mutableListOf<Order>()
+        firestore.collection("menu")
+            .get()
+            .addOnSuccessListener { documents ->
+                orders.forEach { item ->
 
-    // Ensure all hours are represented
-    val fullDayMap = (0 until 24).associate { hour ->
-        val startOfHour =
-            Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date.atTime(hour, 0)
-        val startOfHourInstant = startOfHour.toInstant(TimeZone.currentSystemDefault())
-        startOfHourInstant to (grouped[startOfHourInstant] ?: 0)
+                    val titles =
+                        documents.filter { item.items.contains(it.id) }.mapNotNull { document ->
+                            val data = document.data
+                            try {
+                                data["Title"] as String
+                            } catch (e: Exception) {
+                                Timber.e(e, "Error deserializing document: ${document.id}")
+                                null
+                            }
+                        }
+
+                    newOrders.add(
+                        item.copy(
+                            items = titles
+                        )
+                    )
+                }
+
+                updateState { it.setNewOrdersForList(newOrders) }
+            }
+            .addOnFailureListener { exception ->
+                Timber.w("Error getting documents: ", exception)
+            }
     }
-
-    return fullDayMap
 }

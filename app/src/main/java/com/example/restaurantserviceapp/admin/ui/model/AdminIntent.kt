@@ -10,6 +10,6 @@ sealed class AdminIntent {
 
     data object OnYesterdayChosen : AdminIntent()
 
-    data class OnDateChoosen(val date: Instant) : AdminIntent()
+    data class OnDateChosen(val date: Instant) : AdminIntent()
 
 }

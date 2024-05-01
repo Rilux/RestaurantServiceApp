@@ -49,8 +49,6 @@ import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStartAxis
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
 import com.patrykandpatrick.vico.compose.common.ProvideVicoTheme
-import com.patrykandpatrick.vico.compose.common.VicoTheme
-import com.patrykandpatrick.vico.compose.common.vicoTheme
 import com.patrykandpatrick.vico.compose.m3.common.rememberM3VicoTheme
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianValueFormatter
@@ -117,7 +115,7 @@ fun AdminScreen(
     if (showDatePicker) {
         MyDatePickerDialog(
             onDateSelected = {
-                viewModel.handleIntent(AdminIntent.OnDateChoosen(it))
+                viewModel.handleIntent(AdminIntent.OnDateChosen(it))
             },
             onDismiss = { showDatePicker = false }
         )

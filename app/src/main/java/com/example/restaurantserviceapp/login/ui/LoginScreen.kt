@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.restaurantserviceapp.destinations.AdminScreenDestination
 import com.example.restaurantserviceapp.destinations.SignUpScreenDestination
+import com.example.restaurantserviceapp.destinations.WaiterScreenDestination
 import com.example.restaurantserviceapp.destinations.WaitingScreenDestination
 import com.example.restaurantserviceapp.login.ui.model.LoginIntent
 import com.example.restaurantserviceapp.login.ui.model.LoginSideEffect
@@ -56,11 +57,17 @@ fun LoginScreen(
     loginViewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
             LoginSideEffect.NavigateToAdminPage -> navigator.navigate(AdminScreenDestination)
-            LoginSideEffect.ShowErrorMessage -> {}
-            LoginSideEffect.NavigateToWaitingPage -> navigator.navigate(WaitingScreenDestination)
-            LoginSideEffect.NavigateToWaiterPage -> {
+
+            LoginSideEffect.ShowErrorMessage -> {
                 Toast.makeText(context, "Unexpected error happened, try again", Toast.LENGTH_LONG)
                     .show()
+            }
+
+            LoginSideEffect.NavigateToWaitingPage -> navigator.navigate(WaitingScreenDestination)
+
+            LoginSideEffect.NavigateToWaiterPage -> {
+                navigator.navigate(WaiterScreenDestination)
+
             }
         }
     }
