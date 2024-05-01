@@ -1,4 +1,4 @@
-package com.example.restaurantserviceapp.splash
+package com.example.restaurantserviceapp.waiting
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,51 +8,46 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.example.restaurantserviceapp.destinations.AdminScreenDestination
-import com.example.restaurantserviceapp.destinations.LoginScreenDestination
-import com.example.restaurantserviceapp.destinations.WaitingScreenDestination
-import com.example.restaurantserviceapp.splash.model.SplashIntent
-import com.example.restaurantserviceapp.splash.model.SplashSideEffect
+import com.example.restaurantserviceapp.waiting.model.WaitingIntent
+import com.example.restaurantserviceapp.waiting.model.WaitingSideEffect
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 @Destination
-@RootNavGraph(start = true)
-fun SplashScreen(
+fun WaitingScreen(
     navigator: DestinationsNavigator,
 ) {
-    val viewModel = hiltViewModel<SplashViewModel>()
+    val viewModel = hiltViewModel<WaitingViewModel>()
+
+    LifecycleEventEffect(Lifecycle.Event.ON_CREATE) {
+        viewModel.handleIntent(WaitingIntent.OnViewCreated)
+    }
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
-            is SplashSideEffect.ShowLogin -> navigator.navigate(LoginScreenDestination)
-            is SplashSideEffect.ShowWaitingScreen -> navigator.navigate(WaitingScreenDestination)
+            WaitingSideEffect.OnNavigateToAdmin -> navigator.navigate(AdminScreenDestination)
+            WaitingSideEffect.OnNavigateToWaiterPage -> {}
         }
     }
+
 
     Scaffold {
         Box(
             modifier = Modifier
                 .padding(it)
-                .fillMaxSize(),
-            contentAlignment = Alignment.Center
+                .fillMaxSize()
+                .padding(16.dp)
         ) {
-            CircularProgressIndicator(
-                color = Color(0xff0d99ff)
-            )
+
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
     }
-
-    LifecycleEventEffect(Lifecycle.Event.ON_CREATE) {
-        viewModel.handleIntent(SplashIntent.OnViewCreated)
-    }
-
 
 }

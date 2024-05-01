@@ -1,4 +1,4 @@
-package com.example.restaurantserviceapp.singup.components
+package com.example.restaurantserviceapp.singup
 
 import androidx.lifecycle.SavedStateHandle
 import com.example.restaurantserviceapp.singup.model.SignUpIntent

@@ -1,5 +1,6 @@
 package com.example.restaurantserviceapp.login.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -33,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.restaurantserviceapp.destinations.AdminScreenDestination
 import com.example.restaurantserviceapp.destinations.SignUpScreenDestination
+import com.example.restaurantserviceapp.destinations.WaitingScreenDestination
 import com.example.restaurantserviceapp.login.ui.model.LoginIntent
 import com.example.restaurantserviceapp.login.ui.model.LoginSideEffect
 import com.example.restaurantserviceapp.ui.theme.interFontFamily
@@ -48,13 +51,17 @@ fun LoginScreen(
     navigator: DestinationsNavigator,
 ) {
     val loginViewModel = hiltViewModel<LoginViewModel>()
+    val context = LocalContext.current
 
     loginViewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
             LoginSideEffect.NavigateToAdminPage -> navigator.navigate(AdminScreenDestination)
             LoginSideEffect.ShowErrorMessage -> {}
-            LoginSideEffect.NavigateToWaitingPage -> {}
-            LoginSideEffect.NavigateToWaiterPage -> {}
+            LoginSideEffect.NavigateToWaitingPage -> navigator.navigate(WaitingScreenDestination)
+            LoginSideEffect.NavigateToWaiterPage -> {
+                Toast.makeText(context, "Unexpected error happened, try again", Toast.LENGTH_LONG)
+                    .show()
+            }
         }
     }
 

@@ -35,7 +35,7 @@ class SplashViewModel @Inject constructor(
         if(user == null){
             postSideEffect(SplashSideEffect.ShowLogin)
         } else {
-            postSideEffect(SplashSideEffect.ShowAdminContent)
+            postSideEffect(SplashSideEffect.ShowWaitingScreen)
         }
     }
 

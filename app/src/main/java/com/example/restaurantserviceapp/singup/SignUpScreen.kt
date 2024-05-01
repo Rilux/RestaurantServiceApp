@@ -4,8 +4,8 @@ import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.restaurantserviceapp.destinations.WaitingScreenDestination
 import com.example.restaurantserviceapp.singup.components.SignUpComposable
-import com.example.restaurantserviceapp.singup.components.SignUpViewModel
 import com.example.restaurantserviceapp.singup.model.SignUpIntent
 import com.example.restaurantserviceapp.singup.model.SignUpSideEffect
 import com.ramcosta.composedestinations.annotation.Destination
@@ -28,7 +28,7 @@ fun SignUpScreen(
             }
 
             SignUpSideEffect.OnNavigateToWaitScreen -> {
-
+                navigator.navigate(WaitingScreenDestination)
             }
         }
     }

@@ -4,8 +4,7 @@ sealed class SplashSideEffect {
 
     data object ShowLogin: SplashSideEffect()
 
-    data object ShowAdminContent: SplashSideEffect()
+    data object ShowWaitingScreen: SplashSideEffect()
 
-    data object ShowWaiterContent: SplashSideEffect()
 
 }

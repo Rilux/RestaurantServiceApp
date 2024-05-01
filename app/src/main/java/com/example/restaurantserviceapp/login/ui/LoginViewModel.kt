@@ -44,7 +44,7 @@ class LoginViewModel @Inject constructor(
                         Timber.d("signInWithEmail:success")
                         val user = firebaseAuth.currentUser
 
-                        postSideEffect(LoginSideEffect.NavigateToAdminPage)
+                        postSideEffect(LoginSideEffect.NavigateToWaitingPage)
 
 
                     } else {
