@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.restaurantserviceapp.destinations.AdminScreenDestination
+import com.example.restaurantserviceapp.destinations.SignUpScreenDestination
 import com.example.restaurantserviceapp.login.ui.model.LoginIntent
 import com.example.restaurantserviceapp.login.ui.model.LoginSideEffect
 import com.example.restaurantserviceapp.ui.theme.interFontFamily
@@ -44,12 +45,12 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 @Destination
 @RootNavGraph
 fun LoginScreen(
-    navigator: DestinationsNavigator
+    navigator: DestinationsNavigator,
 ) {
     val loginViewModel = hiltViewModel<LoginViewModel>()
 
     loginViewModel.collectSideEffect { sideEffect ->
-        when(sideEffect) {
+        when (sideEffect) {
             LoginSideEffect.NavigateToAdminPage -> navigator.navigate(AdminScreenDestination)
             LoginSideEffect.ShowErrorMessage -> {}
             LoginSideEffect.NavigateToWaitingPage -> {}
@@ -59,15 +60,17 @@ fun LoginScreen(
 
 
     LoginComposable(
-        { email, password ->
+        onSignIn = { email, password ->
             loginViewModel.handleIntent(
                 LoginIntent.OnCredentialsEntered(
                     email, password
                 )
             )
         },
-        {},
-        {}
+        onSignUp = {
+            navigator.navigate(SignUpScreenDestination)
+        },
+        onForgotPassword = {}
 
     )
 
