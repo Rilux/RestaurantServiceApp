@@ -40,6 +40,8 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import com.example.restaurantserviceapp.admin.ui.model.AdminIntent
 import com.example.restaurantserviceapp.admin.ui.model.AdminSideEffect
 import com.example.restaurantserviceapp.admin.ui.model.AdminState
+import com.example.restaurantserviceapp.ui.components.DateChooseRow
+import com.example.restaurantserviceapp.ui.components.LoadingFullScreen
 import com.example.restaurantserviceapp.ui.components.OrderItemComposable
 import com.example.restaurantserviceapp.ui.components.StatisticDetailsCard
 import com.example.restaurantserviceapp.ui.theme.interFontFamily
@@ -79,29 +81,13 @@ fun AdminScreen(
         viewModel.handleIntent(AdminIntent.OnLoadData)
     }
 
-    var showDatePicker by remember {
-        mutableStateOf(false)
-    }
 
     if (state.isLoading) {
-        Scaffold {
-            Box(
-                modifier = Modifier
-                    .padding(it)
-                    .fillMaxSize()
-                    .padding(16.dp)
-            ) {
-
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            }
-        }
+        LoadingFullScreen()
     } else {
         AdminComposable(
             state,
-            { viewModel.handleIntent(AdminIntent.OnTodayChosen) },
-            { viewModel.handleIntent(AdminIntent.OnYesterdayChosen) },
-            { showDatePicker = true }
-        )
+        ) { viewModel.handleIntent(AdminIntent.OnDateChosen(it)) }
     }
 
     viewModel.collectSideEffect { effect ->
@@ -112,23 +98,13 @@ fun AdminScreen(
         }
     }
 
-    if (showDatePicker) {
-        MyDatePickerDialog(
-            onDateSelected = {
-                viewModel.handleIntent(AdminIntent.OnDateChosen(it))
-            },
-            onDismiss = { showDatePicker = false }
-        )
-    }
 }
 
 
 @Composable
 private fun AdminComposable(
     state: AdminState,
-    onTodayClicked: () -> Unit,
-    onYesterdayClicked: () -> Unit,
-    onChooseDateClicked: () -> Unit,
+    onDateChosen: (Instant) -> Unit,
 ) {
     Scaffold { paddingValues ->
         Column(
@@ -167,44 +143,9 @@ private fun AdminComposable(
 
             Spacer(modifier = Modifier.height(44.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-
-                TextButton(onClick = { onTodayClicked() }) {
-                    Text(
-                        text = "Today",
-                        style = TextStyle(
-                            fontFamily = interFontFamily,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                    )
-                }
-
-                TextButton(onClick = { onYesterdayClicked() }) {
-                    Text(
-                        text = "Yesterday",
-                        style = TextStyle(
-                            fontFamily = interFontFamily,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                    )
-                }
-
-                TextButton(onClick = { onChooseDateClicked() }) {
-                    Text(
-                        text = "Choose period",
-                        style = TextStyle(
-                            fontFamily = interFontFamily,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                    )
-                }
-            }
+            DateChooseRow(
+                onDateChosen = onDateChosen
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -305,7 +246,7 @@ private fun AdminComposable(
 
 
 @Composable
-private fun ComposeChart1(
+fun ComposeChart1(
     modelProducer: CartesianChartModelProducer,
     modifier: Modifier = Modifier,
 ) {

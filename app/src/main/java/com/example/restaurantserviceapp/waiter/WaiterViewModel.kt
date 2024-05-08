@@ -43,23 +43,6 @@ class WaiterViewModel @Inject constructor(
     override fun handleIntent(intent: WaiterIntent) {
         when (intent) {
             WaiterIntent.OnLoadData -> getUser()
-            WaiterIntent.OnTodayChosen -> {
-                updateState {
-                    it.setNewDate(Clock.System.now())
-                }
-                loadData()
-            }
-
-            WaiterIntent.OnYesterdayChosen -> {
-                updateState {
-                    it.setNewDate(
-                        Clock.System.now()
-                            .minus(1, DateTimeUnit.DAY, TimeZone.currentSystemDefault())
-                    )
-                }
-
-                loadData()
-            }
 
             is WaiterIntent.OnDateChosen -> {
                 updateState {
@@ -150,8 +133,7 @@ class WaiterViewModel @Inject constructor(
                 updateState { it.setNewNumberOfOrders(orders.size.toLong()) }
 
                 updateState {
-                    it.setNewTipsAndIncome(
-                        newIncome = orders.sumOf { it.value },
+                    it.setNewTips(
                         newTips = orders.sumOf { it.tips }
                     )
                 }

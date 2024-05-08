@@ -41,19 +41,7 @@ class AdminViewModel @Inject constructor(
     override fun handleIntent(intent: AdminIntent) {
         when (intent) {
             AdminIntent.OnLoadData -> loadData()
-            AdminIntent.OnTodayChosen -> {
-                updateState {
-                    it.setNewDate(Clock.System.now())
-                }
-                loadData()
-            }
-            AdminIntent.OnYesterdayChosen -> {
-                updateState {
-                    it.setNewDate(Clock.System.now().minus(1, DateTimeUnit.DAY, TimeZone.currentSystemDefault()))
-                }
 
-                loadData()
-            }
             is AdminIntent.OnDateChosen -> {
                 updateState {
                     it.setNewDate(intent.date)

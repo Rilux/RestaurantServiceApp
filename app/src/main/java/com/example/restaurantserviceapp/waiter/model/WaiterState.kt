@@ -13,8 +13,7 @@ data class WaiterState(
     val isLoading: Boolean,
     val currentDate: @WriteWith<InstantParceler> Instant,
     val ordersNumberForChart: Map<@WriteWith<InstantParceler> Instant, Int>,
-    val income: Long,
-    val numOfOrders: Long,
+    val numOfOrders: Long? ,
     val tips: Long,
     val ordersForList: List<Order>,
 ) : Parcelable {
@@ -27,10 +26,9 @@ data class WaiterState(
 
     fun setNewDataForChart(data: Map<Instant, Int>) = this.copy(ordersNumberForChart = data)
 
-    fun setNewTipsAndIncome(
+    fun setNewTips(
         newTips: Long,
-        newIncome: Long
-    ) = this.copy(income = newIncome, tips = newTips)
+    ) = this.copy( tips = newTips)
 
     fun setNewNumberOfOrders(newNumber: Long) = this.copy(numOfOrders = newNumber)
 
@@ -39,8 +37,7 @@ data class WaiterState(
             isLoading = true,
             currentDate = Clock.System.now(),
             ordersNumberForChart = emptyMap(),
-            income = 0,
-            numOfOrders = 0,
+            numOfOrders = null,
             tips = 0,
             ordersForList = emptyList()
         )
