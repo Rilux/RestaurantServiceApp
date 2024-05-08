@@ -85,7 +85,7 @@ fun WaiterComposable(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Active orders",
+                text = "Statistic",
                 style = TextStyle(
                     fontFamily = interFontFamily,
                     fontSize = 24.sp,
