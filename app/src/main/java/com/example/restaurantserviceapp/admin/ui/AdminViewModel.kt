@@ -16,6 +16,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.atTime
 import kotlinx.datetime.minus
+import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
@@ -102,7 +103,7 @@ class AdminViewModel @Inject constructor(
                 updateState { it.setNewOrdersForList(orders) }
 
                 updateState {
-                    it.setNewDataForChart(groupOrdersByHour(orders))
+                    it.setNewDataForChart(groupOrdersByHour(orders, state.currentDate))
                 }
 
                 updateState { it.setNewNumberOfOrders(orders.size.toLong()) }
@@ -123,21 +124,21 @@ class AdminViewModel @Inject constructor(
     }
 }
 
-fun groupOrdersByHour(orders: List<Order>): Map<Instant, Int> {
-    // First, group the orders by hour as before
-    val grouped = orders.groupBy { order ->
-        val localDateTime = order.time.toLocalDateTime(TimeZone.currentSystemDefault())
-        val startOfHour = localDateTime.date.atTime(localDateTime.hour, 0)
-        startOfHour.toInstant(TimeZone.currentSystemDefault())
+fun groupOrdersByHour(orders: List<Order>, date: Instant): Map<Instant, Int> {
+    val timezone = TimeZone.currentSystemDefault()
+    val localDate = date.toLocalDateTime(timezone).date
+
+    // Group orders by the start of each hour on the given date
+    val grouped = orders.filter {
+        it.time.toLocalDateTime(timezone).date == localDate
+    }.groupBy { order ->
+        val localDateTime = order.time.toLocalDateTime(timezone)
+        localDateTime.date.atTime(localDateTime.hour, 0).toInstant(timezone)
     }.mapValues { (_, orders) -> orders.size }
 
-    // Ensure all hours are represented
-    val fullDayMap = (0 until 24).associate { hour ->
-        val startOfHour =
-            Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date.atTime(hour, 0)
-        val startOfHourInstant = startOfHour.toInstant(TimeZone.currentSystemDefault())
+    // Create a map for 24 hours with zero counts for hours without orders
+    return (0 until 24).associate { hour ->
+        val startOfHourInstant = localDate.atTime(hour, 0).toInstant(timezone)
         startOfHourInstant to (grouped[startOfHourInstant] ?: 0)
     }
-
-    return fullDayMap
 }

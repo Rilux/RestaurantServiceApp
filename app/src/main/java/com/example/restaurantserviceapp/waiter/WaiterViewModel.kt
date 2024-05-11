@@ -127,7 +127,7 @@ class WaiterViewModel @Inject constructor(
                 }.filter { userTables.contains(it.table) }
 
                 updateState {
-                    it.setNewDataForChart(groupOrdersByHour(orders))
+                    it.setNewDataForChart(groupOrdersByHour(orders, state.currentDate))
                 }
 
                 updateState { it.setNewNumberOfOrders(orders.size.toLong()) }
