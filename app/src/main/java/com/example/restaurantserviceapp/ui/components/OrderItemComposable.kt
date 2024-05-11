@@ -16,8 +16,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.restaurantserviceapp.admin.ui.model.Order
+import com.example.restaurantserviceapp.ui.theme.interFontFamily
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
@@ -59,11 +62,21 @@ fun OrderItemComposable(
                     )
                 )
 
-                Text(text = formattedDate)
+                Text(
+                    text = formattedDate, style = TextStyle(
+                        fontSize = 16.sp,
+                        fontFamily = interFontFamily
+                    )
+                )
 
                 Spacer(modifier = Modifier.width(4.dp))
 
-                Text(text = item.id)
+                Text(
+                    text = "#" + item.id, style = TextStyle(
+                        fontSize = 16.sp,
+                        fontFamily = interFontFamily
+                    )
+                )
 
                 Spacer(
                     modifier = Modifier
@@ -71,14 +84,24 @@ fun OrderItemComposable(
                         .weight(1f)
                 )
 
-                Text(text = "Tb${item.table}")
+                Text(
+                    text = "Tb${item.table}", style = TextStyle(
+                        fontSize = 16.sp,
+                        fontFamily = interFontFamily
+                    )
+                )
 
             }
 
             Spacer(modifier = Modifier.height(4.dp))
 
             Row {
-                Text(text = "Total: ${item.value}")
+                Text(
+                    text = "Total: ${item.value}", style = TextStyle(
+                        fontSize = 16.sp,
+                        fontFamily = interFontFamily
+                    )
+                )
             }
         }
 

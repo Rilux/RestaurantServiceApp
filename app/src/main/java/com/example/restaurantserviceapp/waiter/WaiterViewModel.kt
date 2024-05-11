@@ -138,10 +138,7 @@ class WaiterViewModel @Inject constructor(
                     )
                 }
 
-                updateState {
-                    it.setNewOrdersForList(orders.filter { it.isActive })
-                }
-                getOrdersProductName(orders)
+                getOrdersProductName(orders.filter { it.isActive })
                 updateState { it.setNewLoading(false) }
 
             }

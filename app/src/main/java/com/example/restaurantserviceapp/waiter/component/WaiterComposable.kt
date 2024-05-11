@@ -2,6 +2,8 @@ package com.example.restaurantserviceapp.waiter.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowColumn
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -37,6 +41,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun WaiterComposable(
     state: WaiterState,
@@ -77,9 +82,16 @@ fun WaiterComposable(
 
             }
 
-
-            LazyColumn {
-
+            FlowColumn  {
+                if(state.isLoading && state.ordersForList.isEmpty()) {
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    state.ordersForList.forEach {
+                        OrderCardItem(it)
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -109,7 +121,9 @@ fun WaiterComposable(
                     modifier = Modifier.weight(1f)
                 )
 
-                Spacer(modifier = Modifier.width(24.dp).weight(1f))
+                Spacer(modifier = Modifier
+                    .width(24.dp)
+                    .weight(1f))
 
                 StatisticDetailsCard(
                     "Tips",
