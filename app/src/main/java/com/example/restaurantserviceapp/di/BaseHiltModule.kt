@@ -24,4 +24,6 @@ object BaseHiltModule {
     @Singleton
     fun provideFirestoreDatabase() : FirebaseFirestore = Firebase.firestore
 
+
+
 }

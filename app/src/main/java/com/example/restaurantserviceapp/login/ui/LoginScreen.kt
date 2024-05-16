@@ -33,7 +33,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.restaurantserviceapp.NavGraphs
 import com.example.restaurantserviceapp.destinations.AdminScreenDestination
+import com.example.restaurantserviceapp.destinations.ForgotPasswordScreenDestination
 import com.example.restaurantserviceapp.destinations.SignUpScreenDestination
 import com.example.restaurantserviceapp.destinations.WaiterScreenDestination
 import com.example.restaurantserviceapp.destinations.WaitingScreenDestination
@@ -43,6 +45,7 @@ import com.example.restaurantserviceapp.ui.theme.interFontFamily
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.popUpTo
 import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
@@ -56,17 +59,23 @@ fun LoginScreen(
 
     loginViewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
-            LoginSideEffect.NavigateToAdminPage -> navigator.navigate(AdminScreenDestination)
+            LoginSideEffect.NavigateToAdminPage -> navigator.navigate(AdminScreenDestination){
+                popUpTo(NavGraphs.root)
+            }
 
             LoginSideEffect.ShowErrorMessage -> {
                 Toast.makeText(context, "Unexpected error happened, try again", Toast.LENGTH_LONG)
                     .show()
             }
 
-            LoginSideEffect.NavigateToWaitingPage -> navigator.navigate(WaitingScreenDestination)
+            LoginSideEffect.NavigateToWaitingPage -> navigator.navigate(WaitingScreenDestination){
+                popUpTo(NavGraphs.root)
+            }
 
             LoginSideEffect.NavigateToWaiterPage -> {
-                navigator.navigate(WaiterScreenDestination)
+                navigator.navigate(WaiterScreenDestination) {
+                    popUpTo(NavGraphs.root)
+                }
 
             }
         }
@@ -84,7 +93,9 @@ fun LoginScreen(
         onSignUp = {
             navigator.navigate(SignUpScreenDestination)
         },
-        onForgotPassword = {}
+        onForgotPassword = {
+            navigator.navigate(ForgotPasswordScreenDestination)
+        }
 
     )
 
