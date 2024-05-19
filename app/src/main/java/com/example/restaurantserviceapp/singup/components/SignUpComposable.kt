@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.core.util.PatternsCompat
 
 @Composable
 fun SignUpComposable(
@@ -144,10 +145,13 @@ fun SignUpComposable(
                 colors = ButtonDefaults.buttonColors()
                     .copy(containerColor = Color(0xff0d99ff)),
                 enabled = emailValue.isNotBlank()
-                        && emailValue.contains("@")
+                        && PatternsCompat.EMAIL_ADDRESS.matcher(emailValue).matches()
                         && passwordValue.isNotBlank()
                         && passwordValue == secondPasswordValue
                         && fullNameValue.isNotBlank()
+                        && passwordValue.length > 6
+                        && passwordValue.any { it.isDigit() }
+                        && passwordValue.any { it.isLetter() }
             ) {
                 Text(text = "Sign up")
             }

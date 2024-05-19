@@ -32,6 +32,7 @@ class SplashViewModel @Inject constructor(
 
     private fun loadUser() {
         val user = firebaseAuth.currentUser
+
         if(user == null){
             postSideEffect(SplashSideEffect.ShowLogin)
         } else {

@@ -32,6 +32,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.util.PatternsCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.restaurantserviceapp.NavGraphs
 import com.example.restaurantserviceapp.destinations.AdminScreenDestination
@@ -118,6 +119,9 @@ fun LoginComposable(
             mutableStateOf("")
         }
 
+        val isEmailValid = remember(emailValue) { PatternsCompat.EMAIL_ADDRESS.matcher(emailValue).matches() }
+        val isPasswordValid =
+            remember(passwordValue) { passwordValue.length > 6 && passwordValue.any { it.isDigit() } && passwordValue.any { it.isLetter() } }
 
         Column(
             modifier = Modifier
@@ -176,7 +180,7 @@ fun LoginComposable(
                 shape = RoundedCornerShape(4.dp),
                 colors = ButtonDefaults.buttonColors()
                     .copy(containerColor = Color(0xff0d99ff)),
-                enabled = emailValue.isNotBlank() && emailValue.contains("@") && passwordValue.isNotBlank()
+                enabled = isEmailValid && isPasswordValid
             ) {
                 Text(text = "Sign In")
             }
