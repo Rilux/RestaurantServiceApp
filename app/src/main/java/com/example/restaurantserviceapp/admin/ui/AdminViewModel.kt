@@ -6,7 +6,9 @@ import com.example.restaurantserviceapp.admin.ui.model.AdminSideEffect
 import com.example.restaurantserviceapp.admin.ui.model.AdminState
 import com.example.restaurantserviceapp.admin.ui.model.Order
 import com.example.restaurantserviceapp.ui.base.BaseMviViewModel
+import com.example.restaurantserviceapp.waiter.model.WaiterSideEffect
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.datetime.Clock
@@ -30,6 +32,7 @@ import javax.inject.Inject
 class AdminViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val firestore: FirebaseFirestore,
+    private val firebaseAuth: FirebaseAuth,
 ) : BaseMviViewModel<AdminState, AdminSideEffect, AdminIntent>() {
 
     override val container =
@@ -49,6 +52,11 @@ class AdminViewModel @Inject constructor(
                 }
 
                 loadData()
+            }
+
+            is AdminIntent.OnExit -> {
+                firebaseAuth.signOut()
+                postSideEffect(AdminSideEffect.OnNavigateToLogin)
             }
         }
     }

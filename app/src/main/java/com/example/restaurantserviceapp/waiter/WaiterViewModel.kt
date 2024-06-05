@@ -51,6 +51,11 @@ class WaiterViewModel @Inject constructor(
 
                 loadData()
             }
+
+            WaiterIntent.OnExit -> {
+                firebaseAuth.signOut()
+                postSideEffect(WaiterSideEffect.OnNavigateToLogin)
+            }
         }
     }
 

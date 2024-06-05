@@ -37,9 +37,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
+import com.example.restaurantserviceapp.NavGraphs
 import com.example.restaurantserviceapp.admin.ui.model.AdminIntent
 import com.example.restaurantserviceapp.admin.ui.model.AdminSideEffect
 import com.example.restaurantserviceapp.admin.ui.model.AdminState
+import com.example.restaurantserviceapp.destinations.LoginScreenDestination
 import com.example.restaurantserviceapp.ui.components.DateChooseRow
 import com.example.restaurantserviceapp.ui.components.LoadingFullScreen
 import com.example.restaurantserviceapp.ui.components.OrderItemComposable
@@ -58,6 +60,7 @@ import com.patrykandpatrick.vico.core.cartesian.data.lineSeries
 import com.patrykandpatrick.vico.core.common.data.ExtraStore
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.popUpTo
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -87,13 +90,21 @@ fun AdminScreen(
     } else {
         AdminComposable(
             state,
-        ) { viewModel.handleIntent(AdminIntent.OnDateChosen(it)) }
+            onExit = {
+                viewModel.handleIntent(AdminIntent.OnExit)
+            },
+            onDateChosen = {
+                viewModel.handleIntent(AdminIntent.OnDateChosen(it))
+            }
+        )
     }
 
     viewModel.collectSideEffect { effect ->
         when (effect) {
-            AdminSideEffect.ShowDateChooseDialog -> {
-
+            AdminSideEffect.OnNavigateToLogin -> {
+                navigator.navigate(LoginScreenDestination) {
+                    popUpTo(NavGraphs.root)
+                }
             }
         }
     }
@@ -105,6 +116,7 @@ fun AdminScreen(
 private fun AdminComposable(
     state: AdminState,
     onDateChosen: (Instant) -> Unit,
+    onExit: () -> Unit,
 ) {
     Scaffold { paddingValues ->
         Column(
@@ -131,14 +143,15 @@ private fun AdminComposable(
                         .weight(1f)
                 )
 
-                Text(
-                    text = "Exit",
-                    style = TextStyle(
-                        fontFamily = interFontFamily,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium
+                TextButton(onClick = onExit) {
+                    Text(
+                        "Exit",
+                        style = TextStyle(
+                            fontFamily = interFontFamily,
+                            fontSize = 16.sp
+                        )
                     )
-                )
+                }
             }
 
             Spacer(modifier = Modifier.height(44.dp))

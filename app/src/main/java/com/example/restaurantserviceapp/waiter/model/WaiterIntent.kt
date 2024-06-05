@@ -9,4 +9,6 @@ sealed class WaiterIntent {
 
     data class OnDateChosen(val date: Instant) : WaiterIntent()
 
+    data object OnExit : WaiterIntent()
+
 }

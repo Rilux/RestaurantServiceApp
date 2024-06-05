@@ -6,8 +6,8 @@ sealed class AdminIntent {
 
     data object OnLoadData : AdminIntent()
 
-
-
     data class OnDateChosen(val date: Instant) : AdminIntent()
+
+    data object OnExit : AdminIntent()
 
 }
